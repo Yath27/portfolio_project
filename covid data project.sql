@@ -41,5 +41,14 @@ select sum(new_cases) as total_cases_globally, sum(cast(new_deaths as int)) as t
 from portfolio_project..covid_data
 
 
+-- total deaths across continents
+
+Select continent, MAX(cast(Total_deaths as int)) as TotalDeathCount
+From Portfolio_Project..Covid_data
+Where continent is not null 
+Group by continent
+order by TotalDeathCount desc
+
+
 
 
