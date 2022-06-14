@@ -1,0 +1,114 @@
+
+
+
+-- correcting the date column
+
+alter table PORTFOLIO_PROJECT..uk_accident 
+add  date
+select convert(TIME,[time]) as DATeeeee
+from PORTFOLIO_PROJECT..uk_accident
+
+
+select *
+from PORTFOLIO_PROJECT..uk_accident
+
+
+-- number of casualties when the accident was minor, moderate and serious
+
+select sum(number_of_casualties) as casualties, Accident_Severity
+from PORTFOLIO_PROJECT..UK_accident
+group by Accident_Severity
+order by casualties desc
+
+
+-- total number of casualties from 2005-2011
+
+select sum(number_of_casualties) as total_casualties
+from PORTFOLIO_PROJECT..UK_accident
+
+
+-- how many casualties in the year 2005 as compared to 2011
+
+select sum(number_of_casualties) as total_casualties, YEAR
+from PORTFOLIO_PROJECT..UK_accident
+where year = 2005
+group by year
+UNION
+select sum(number_of_casualties) as total_casualties2, YEAR
+from PORTFOLIO_PROJECT..UK_accident
+where year = 2011
+group by year
+
+
+-- number of casualties each year from 2005-2011
+
+select sum(number_of_casualties) as total_casualties, YEAR
+from PORTFOLIO_PROJECT..UK_accident
+group by year
+order by year asc
+
+
+-- lets look at the accidents that were serious
+
+select accident_index, Police_force, accident_severity, number_of_vehicles, date, speed_limit, weather_conditions, road_surface_conditions, did_police_attend, year
+from PORTFOLIO_PROJECT..UK_accident
+where accident_severity = 'serious'
+
+
+-- looking at the accidents that took place in daylight
+
+select accident_index, Police_force, accident_severity, number_of_vehicles, date, Light_Conditions, did_police_attend, year
+from PORTFOLIO_PROJECT..UK_accident
+where Light_Conditions like 'Daylight%'
+
+
+-- looking at the accidents in which police officer did not attend the site
+
+select accident_index, Police_force, accident_severity, number_of_vehicles, date, Light_Conditions, did_police_attend, year
+from PORTFOLIO_PROJECT..UK_accident
+where Did_Police_Attend = 'No'
+
+
+-- lets count the number of accidents that took place between 2005 and 2011 when the road surface condition was wet/damp
+
+select count(accident_index) as number_of_accidents
+from PORTFOLIO_PROJECT..UK_accident
+where Road_Surface_Conditions like 'wet%' 
+
+
+-- Finding the percentage increse/decrease in the number of accidents in year 2011 with respect to the year 2005
+
+-- 1)Creating a temporary table for the purpose
+
+create table #temp_UK_accident 
+(Year float,
+number_of_accidents float)
+
+select *
+from #temp_UK_accident
+
+-- 2)Inserting the values in the temporary table
+
+
+insert into #temp_UK_accident
+select year, count(accident_index) as number_of_accidents
+from PORTFOLIO_PROJECT..UK_accident
+where year = 2005
+group by year
+union
+select year, count(accident_index) as number_of_accidents
+from PORTFOLIO_PROJECT..UK_accident
+where year = 2011
+group by year
+
+-- 3)Finding the percentage increase/decrease
+
+select ((max(number_of_accidents)-min(number_of_accidents))*100)/max(number_of_accidents) as percentage_increase_or_decrease
+from #temp_UK_accident 
+
+
+
+
+
+
+
