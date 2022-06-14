@@ -1,14 +1,6 @@
 
 
 
--- correcting the date column
-
-alter table PORTFOLIO_PROJECT..uk_accident 
-add  date
-select convert(TIME,[time]) as DATeeeee
-from PORTFOLIO_PROJECT..uk_accident
-
-
 select *
 from PORTFOLIO_PROJECT..uk_accident
 
