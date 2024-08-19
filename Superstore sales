@@ -1,0 +1,111 @@
+-- [Q1] Average time taken by orders to get shipped --
+Select ship_mode, round
+(avg(datediff(str_to_date(ship_date, '%d/%m/%Y'), str_to_date(order_date, '%d/%m/%Y'))), 2) 
+as Days_taken
+from superstore.orders
+group by ship_mode
+order by Days_taken asc
+
+
+-- [Q2] Cities with the highest number of customers --
+Select count(distinct(customer_id)) as no_of_customers, city, country 
+from superstore.customers
+group by city, country
+order by count(distinct(customer_id)) desc
+
+
+-- [Q3] Top 10 customers by sales amount --
+Select c.customer_id, round(sum(p.sales),2) as total_sales, c.customer_name
+from superstore.customers c
+join superstore.products p 
+on c.superstore_id = p.superstore_id
+group by c.customer_id, c.customer_name
+order by total_sales desc
+limit 10
+
+
+-- [Q4] Monthlhy sales --
+Select date_format((str_to_date(o.order_date, '%d/%m/%Y')), '%M-%Y') as Month, round(sum(p.sales), 2) as Sales
+from superstore.orders o
+join superstore.products p on o.superstore_id = p.superstore_id
+group by Month
+
+
+-- [Q5] Percentage contribution of each product category to the total sales --
+Select p.category, c.region, round(sum(p.sales)/
+(select sum(p.sales) from superstore.products p) * 100, 2) as Percentage_sales
+from superstore.products p
+join customers c on p.superstore_id = c.superstore_id
+group by category, c.region
+order by c.region, Percentage_sales desc
+ 
+
+-- [Q6] Regions with sales increase/decrease in 2017 as comapred to 2016 --
+With regionalsales_2016 as (
+select c.region, round(sum(p.sales), 2) as region_sales_2016, year(str_to_date(o.order_date, '%d/%m/%Y')) as year
+from superstore.products p
+join customers c on p.superstore_id = c.superstore_id
+join orders o on p.superstore_id = o.superstore_id
+where year(str_to_date(o.order_date, '%d/%m/%Y')) = 2016
+group by c.region, year
+),
+regionalsales_2017 as (
+select c.region, round(sum(p.sales), 2) as region_sales_2017, year(str_to_date(o.order_date, '%d/%m/%Y')) as year
+from superstore.products p
+join customers c on p.superstore_id = c.superstore_id
+join orders o on p.superstore_id = o.superstore_id
+where year(str_to_date(o.order_date, '%d/%m/%Y')) = 2017
+group by c.region, year
+)
+select r16.region, round(((r17.region_sales_2017 - r16.region_sales_2016)/r17.region_sales_2017) * 100, 2) as sales_Percentage,
+case when (r17.region_sales_2017 - r16.region_sales_2016) > 0 then 'percentage increase in sales'
+when (r17.region_sales_2017 - r16.region_sales_2016) < 0 then 'percentage deccrease in sales'
+else 'same as previous year'
+end as Result
+from regionalsales_2016 r16
+join regionalsales_2017 r17 on r16.region = r17.region
+order by sales_percentage desc
+
+
+-- [Q7] Which month sold the maximum quantity of each product category across 4 years --
+WITH MonthlySales AS (
+SELECT ps.sub_category,
+        date_format((str_to_date(o.order_date, '%d/%m/%Y')), '%Y') AS SaleYear,
+        date_format((str_to_date(o.order_date, '%d/%m/%Y')), '%M') AS SaleMonth,
+        SUM(ps.quantity) AS TotalUnitsSold
+    FROM
+        Products ps
+    JOIN
+        Orders o
+    ON
+        ps.superstore_id = o.superstore_id
+    GROUP BY
+        ps.sub_category,
+        SaleYear,
+        SaleMonth
+),
+MaxSales AS (
+    SELECT
+        sub_category,
+        MAX(TotalUnitsSold) AS MaxUnitsSold
+    FROM
+        MonthlySales
+    GROUP BY
+        sub_category
+)
+SELECT
+    ms.sub_category,
+    ms.SaleYear,
+    ms.SaleMonth,
+    ms.TotalUnitsSold
+FROM
+    MonthlySales ms
+JOIN
+    MaxSales ms_max
+ON
+    ms.sub_category = ms_max.sub_category
+    where ms.TotalUnitsSold = ms_max.MaxUnitsSold
+ORDER BY
+    ms.sub_category,
+    ms.SaleYear,
+    ms.SaleMonth;
