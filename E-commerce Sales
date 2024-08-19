@@ -1,0 +1,67 @@
+-- [Q1] Total no. of overall and unique customers --
+Select count(Customer_name) as Total_customers, count(distinct(concat(customer_name, City))) as
+number_of_unique_cust
+from orders.orders
+ 
+
+-- [Q2] Details of Repeat customers(i.e. having more than 2 orders) --
+Select customer_name, count(customer_name) as total_orders
+from orders.orders
+group by customer_name
+having count(customer_name) > 2
+order by total_orders desc
+
+
+-- [Q3] Which customer has spent the most amount on orders --
+Select o.customer_name, sum(od.Amount) as most_amount_spent
+from orders o
+join order_details od on o.order_id = od.order_id
+group by o.customer_name
+order by most_amount_spent desc
+limit 1
+
+
+-- [Q4] Profit/loss for each month --
+SELECT DATE_FORMAT(o.order_date, '%Y-%m') AS order_month, SUM(od.profit) AS total_profit,
+case when sum(profit) < 0 then 'Loss'
+when sum(profit) > 0 then 'profit'
+else 'None'
+end as profit_loss
+FROM orders o
+JOIN order_details od ON o.order_id = od.order_id
+GROUP BY order_month
+ORDER BY order_month;
+
+
+-- [Q5] Which month sold the highest quantity of tshirts across 2018 --
+Select monthname(o.order_date) as month, sum(od.Quantity) as total_quantity, sub_category
+from orders o
+JOIN order_details od ON o.order_id = od.order_id
+where sub_category = 'Shirt' and year(o.order_date) = 2018
+group by month
+order by total_quantity desc
+
+
+-- [Q6] Monthly Sales and Profit --
+Select DATE_FORMAT(o.order_date, '%M-%Y') as Month, sum(od.Amount) as Sales, sum(od.Profit) as Profit_or_loss
+from orders o
+join order_details od on o.order_id = od.order_id 
+group by Month
+order by sales desc
+
+
+-- [Q7] Check whether sales target for all the months was met or not --
+With monthlysales as (
+Select sum(od.Amount) as sales_total, DATE_FORMAT(o.order_date, '%M %y') AS Month
+from order_details od
+join orders o on od.order_id = o.order_id
+group by Month
+)
+select ms.Month, st.category, st.target, ms.sales_total,
+case
+when ms.sales_total >= st.target then 'Target Achieved'
+else 'Target Not Achieved'
+end as target_results
+from sales_target st
+join monthlysales ms on st.Month = ms.Month
+group by ms.Month, st.target, st.category
