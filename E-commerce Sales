@@ -1,3 +1,8 @@
+-- Dataset: E-Commerce Data
+-- Source: https://www.kaggle.com/datasets/benroshan/ecommerce-data
+-- Queried using: MySql
+
+
 -- [Q1] Total no. of overall and unique customers --
 Select count(Customer_name) as Total_customers, count(distinct(concat(customer_name, City))) as
 number_of_unique_cust
