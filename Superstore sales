@@ -1,3 +1,8 @@
+-- Dataset: Superstore Sales
+-- Source: https://www.kaggle.com/datasets/ishanshrivastava28/superstore-sales
+-- Queried using: MySql
+
+
 -- [Q1] Average time taken by orders to get shipped --
 Select ship_mode, round
 (avg(datediff(str_to_date(ship_date, '%d/%m/%Y'), str_to_date(order_date, '%d/%m/%Y'))), 2) 
