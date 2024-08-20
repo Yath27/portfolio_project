@@ -1,21 +1,17 @@
-
--- number of casualties when the accident was minor, moderate and serious
-
-select sum(number_of_casualties) as casualties, Accident_Severity
+--[Q1] Number of casualties when the accident was minor, moderate and serious--
+Select sum(number_of_casualties) as casualties, Accident_Severity
 from PORTFOLIO_PROJECT..UK_accident
 group by Accident_Severity
 order by casualties desc
 
 
--- total number of casualties from 2005-2011
-
-select sum(number_of_casualties) as total_casualties
+--[Q2] Total number of casualties from 2005-2011--
+Select sum(number_of_casualties) as total_casualties
 from PORTFOLIO_PROJECT..UK_accident
 
 
--- how many casualties in the year 2005 as compared to 2011
-
-select sum(number_of_casualties) as total_casualties, YEAR
+--[Q3] How many casualties in the year 2005 as compared to 2011-- 
+Select sum(number_of_casualties) as total_casualties, YEAR
 from PORTFOLIO_PROJECT..UK_accident
 where year = 2005
 group by year
@@ -26,24 +22,21 @@ where year = 2011
 group by year
 
 
--- number of casualties each year from 2005-2011
-
-select sum(number_of_casualties) as total_casualties, YEAR
+--[Q4] Number of casualties each year from 2005-2011--
+Select sum(number_of_casualties) as total_casualties, YEAR
 from PORTFOLIO_PROJECT..UK_accident
 group by year
 order by year asc
 
 
--- lets look at the accidents that were serious
-
-select accident_index, Police_force, accident_severity, number_of_vehicles, date, speed_limit, weather_conditions, road_surface_conditions, did_police_attend, year
+--[Q5] Accidents that were serious--
+Select accident_index, Police_force, accident_severity, number_of_vehicles, date, speed_limit, weather_conditions, road_surface_conditions, did_police_attend, year
 from PORTFOLIO_PROJECT..UK_accident
 where accident_severity = 'serious'
 
 
--- looking at the accidents that took place in daylight
-
-select accident_index, Police_force, accident_severity, number_of_vehicles, date, Light_Conditions, did_police_attend, year
+--[Q6] Accidents that took place in daylight--
+Select accident_index, Police_force, accident_severity, number_of_vehicles, date, Light_Conditions, did_police_attend, year
 from PORTFOLIO_PROJECT..UK_accident
 where Light_Conditions like 'Daylight%'
 
